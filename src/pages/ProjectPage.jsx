@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import projects from '../data/projects';
@@ -14,37 +14,68 @@ const ProjectPage = () => {
   const [photoIndex, setPhotoIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
 
+  // Activează/dezactivează scroll-ul
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'; // Dezactivează scroll-ul
+    } else {
+      document.body.style.overflow = 'auto'; // Activează scroll-ul
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto'; // În cazul în care se închide componenta
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isOpen) return;
+
+      if (e.key === 'ArrowLeft') {
+        setPhotoIndex((prev) => (prev - 1 + project.images.length) % project.images.length);
+      } else if (e.key === 'ArrowRight') {
+        setPhotoIndex((prev) => (prev + 1) % project.images.length);
+      } else if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, project.images.length]);
+
   if (!project) return <div>Proiectul nu a fost găsit.</div>;
 
-  // Scroll lent
   const scrollToTop = () => {
     const scrollInterval = setInterval(() => {
       const currentPosition = window.scrollY;
       if (currentPosition <= 0) {
-        clearInterval(scrollInterval); // Stop scrolling when we reach top
+        clearInterval(scrollInterval);
       }
-      window.scrollTo(0, currentPosition - 20); // Scroll slowly upwards
-    }, 16); // Approximately 60 frames per second
+      window.scrollTo(0, currentPosition - 20);
+    }, 16);
   };
 
   const customStyles = {
     overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.9)',
+      backgroundColor: 'rgba(0, 0, 0, 0.9)', // Fundal întunecat
       zIndex: 1000,
+      backdropFilter: 'blur(10px)', // Adaugă blur
     },
     content: {
-      inset: '50% auto auto 50%',
-      transform: 'translate(-50%, -50%)',
+      inset: '0',
       background: 'transparent',
       border: 'none',
       padding: 0,
-      overflow: 'visible',
+      overflow: 'hidden',
     },
   };
 
+  // Închiderea modalului la clic pe fundal
+  const closeModal = () => setIsOpen(false);
+
   return (
     <div className="bg-[#1f1f1f] text-white min-h-screen">
-      {/* Back button */}
       <div className="p-8 max-w-6xl mx-auto">
         <Link
           to="/proiecte"
@@ -57,7 +88,6 @@ const ProjectPage = () => {
         </Link>
       </div>
 
-      {/* Title */}
       <div className="p-8 max-w-6xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -78,19 +108,18 @@ const ProjectPage = () => {
           </motion.p>
         )}
 
-        {/* Masonry gallery */}
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6">
           {project.images.map((src, idx) => (
             <motion.div
               key={idx}
               className="relative"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
             >
               <img
                 src={src}
-                alt={`Project image ${idx + 1}`}
+                alt={`Project ${idx + 1}`}
                 loading="lazy"
                 onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
                 className="w-full mb-6 rounded-3xl cursor-pointer break-inside-avoid object-cover transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
@@ -100,33 +129,50 @@ const ProjectPage = () => {
           ))}
         </div>
 
-        {/* Lightbox modal with zoom */}
         <Modal
           isOpen={isOpen}
-          onRequestClose={() => setIsOpen(false)}
+          onRequestClose={closeModal}
           style={customStyles}
           shouldCloseOnOverlayClick={true}
         >
-          <div className="relative">
-            {/* Close button (X) */}
+          {/* Fundalul modalului */}
+          <div
+            onClick={closeModal}  // Închide la clic pe fundal
+            className="relative w-full h-screen flex items-center justify-center"
+          >
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-4 right-4 text-4xl text-white opacity-80 hover:opacity-100 focus:outline-none z-20"
+              className="absolute top-6 right-8 text-4xl text-white opacity-80 hover:opacity-100 focus:outline-none z-30"
             >
               &times;
             </button>
 
+            <button
+              onClick={() => setPhotoIndex((photoIndex - 1 + project.images.length) % project.images.length)}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
+            >
+              &#8592;
+            </button>
+
             <img
               src={project.images[photoIndex]}
-              alt={`Project image ${photoIndex + 1}`}
-              className={`max-w-full max-h-[80vh] mx-auto rounded-xl transform transition-transform duration-300 ${zoomed ? 'scale-150' : ''}`}
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                setZoomed(!zoomed);  // Toggle zoom on click
+              alt={`Project ${photoIndex + 1}`}
+              className={`max-h-full w-auto max-w-none mx-auto rounded-xl transform transition-transform duration-300 ${zoomed ? 'scale-150' : ''}`}
+              onClick={(e) => {
+                e.stopPropagation();  // Previi ca clicul pe imagine să închidă modalul
+                setZoomed(!zoomed);
               }}
             />
+
+            <button
+              onClick={() => setPhotoIndex((photoIndex + 1) % project.images.length)}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
+            >
+              &#8594;
+            </button>
+
             {project.imageTitles?.[photoIndex] && (
-              <p className="text-center text-white mt-4 text-sm">
+              <p className="text-center text-white mt-4 text-sm absolute bottom-8 w-full">
                 {project.imageTitles[photoIndex]}
               </p>
             )}
@@ -134,12 +180,11 @@ const ProjectPage = () => {
         </Modal>
       </div>
 
-      {/* Scroll-to-top button */}
       <motion.button
         onClick={scrollToTop}
         initial={{ opacity: 1 }}
-        animate={{ opacity: 1, y: 0 }} // Scroll in the same place
-        transition={{ duration: 1, ease: 'easeInOut' }} // Smooth animation
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: 'easeInOut' }}
         className="fixed bottom-8 right-8 p-4 rounded-full bg-gradient-to-r from-[#2b2b2b] to-[#3a3a3a] backdrop-blur-md text-white shadow-xl hover:bg-gradient-to-r hover:from-[#444444] hover:to-[#555555] hover:scale-110 transition-all duration-300 group"
       >
         <svg

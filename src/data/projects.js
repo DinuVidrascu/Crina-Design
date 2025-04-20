@@ -29,7 +29,6 @@ const projects = [
             "/project/vd-interior/22.jpg",
             "/project/vd-interior/24.jpg",
             
-            
          ],
    },
    {

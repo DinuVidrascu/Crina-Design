@@ -44,8 +44,7 @@ const Home = () => {
               variants={itemVariants}
               className="text-base md:text-base mb-6 leading-relaxed"
             >
-              I'm an interior designer who specializes in crafting spaces that are both visually appealing and highly functional. My approach is rooted in creativity and a strong commitment to meeting my clients' needs and aspirations. With a knack for blending aesthetics with practicality, I create interiors that stand out. <br />
-              I invite you to explore my portfolio and see how my passion for interior design has translated into spaces that are not just beautiful but meaningful.
+              I'm an interior designer with a passion for creating spaces that are not only beautiful, but also deeply functional and meaningful. My design approach combines creativity with a strong focus on my clients' unique needs and lifestyles. <br /> Take a look through my portfolio and discover how design can elevate everyday living.
             </motion.p>
             <motion.div variants={itemVariants}>
               <Link
@@ -60,9 +59,9 @@ const Home = () => {
           {/* IMAGE - independent motion */}
           <motion.div
             className="flex-1 flex justify-center"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.6}}
           >
             <motion.img
               src={IMG}
