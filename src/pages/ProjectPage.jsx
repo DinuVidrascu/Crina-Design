@@ -8,7 +8,7 @@ import Masonry from 'react-masonry-css';
 
 Modal.setAppElement('#root');
 
-// LazyImage cu efect de blur și loader până la încărcare
+// LazyImage cu efect de blur până la încărcare
 const LazyImage = ({ src, alt, onClick }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -35,21 +35,16 @@ const LazyImage = ({ src, alt, onClick }) => {
         <div className="w-full h-[300px] bg-gray-800 rounded-xl animate-pulse" />
       )}
       {isVisible && (
-        <>
-          {!loaded && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent border-white"></div>
-            </div>
-          )}
-          <img
-            src={src}
-            alt={alt}
-            loading="lazy"
-            onLoad={() => setLoaded(true)}
-            onClick={onClick}
-            className={`w-full h-auto rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${loaded ? 'filter-none' : 'blur-lg'}`}
-          />
-        </>
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onClick={onClick}
+          className={
+            `w-full h-auto rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${loaded ? 'filter-none' : 'blur-lg'}`
+          }
+        />
       )}
     </div>
   );
