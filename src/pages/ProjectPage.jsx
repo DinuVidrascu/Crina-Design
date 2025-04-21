@@ -8,13 +8,54 @@ import Masonry from 'react-masonry-css';
 
 Modal.setAppElement('#root');
 
+const LazyImage = ({ src, alt, onClick }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const imgRef = React.useRef();
+
+  useEffect(() => {
+    const ref = imgRef.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref) {
+      observer.observe(ref);
+    }
+
+    return () => {
+      if (ref) observer.unobserve(ref);
+    };
+  }, []);
+
+  return (
+    <div ref={imgRef}>
+      {isVisible ? (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onClick={onClick}
+          className="w-full h-auto mb-6 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+        />
+      ) : (
+        <div className="w-full h-[300px] mb-6 bg-gray-800 rounded-xl animate-pulse" />
+      )}
+    </div>
+  );
+};
+
 const ProjectPage = () => {
   const { slug } = useParams();
   const project = projects.find((p) => p.slug === slug);
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
-  const [loadedImages, setLoadedImages] = useState({});
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
@@ -35,14 +76,6 @@ const ProjectPage = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, project?.images.length]);
-
-  useEffect(() => {
-    if (!project) return;
-    project.images.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
-  }, [project]);
 
   if (!project) return <div>Proiectul nu a fost găsit.</div>;
 
@@ -122,21 +155,11 @@ const ProjectPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
             >
-              <div className="w-full h-auto mb-6 rounded-xl overflow-hidden bg-gray-700 flex items-center justify-center">
-                {!loadedImages[src] && (
-                  <div className="w-full h-64 flex items-center justify-center animate-pulse bg-gray-800 rounded-xl">
-                    <span className="text-gray-400">Se încarcă...</span>
-                  </div>
-                )}
-                <img
-                  src={src}
-                  alt={`Project ${idx + 1}`}
-                  loading="lazy"
-                  onLoad={() => setLoadedImages((prev) => ({ ...prev, [src]: true }))}
-                  onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
-                  className={`w-full h-auto rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${loadedImages[src] ? 'block' : 'hidden'}`}
-                />
-              </div>
+              <LazyImage
+                src={src}
+                alt={`Project ${idx + 1}`}
+                onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
+              />
               <p className="text-sm text-center mt-2 text-gray-300">{project.imageTitles?.[idx]}</p>
             </motion.div>
           ))}
