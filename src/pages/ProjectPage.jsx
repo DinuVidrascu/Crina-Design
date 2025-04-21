@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import projects from '../data/projects';
 import Footer from '../components/Footer';
 import Modal from 'react-modal';
-import Masonry from 'react-masonry-css'; // Importăm librăria
+import Masonry from 'react-masonry-css';
 
 Modal.setAppElement('#root');
 
@@ -14,22 +14,16 @@ const ProjectPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
+  const [loadedImages, setLoadedImages] = useState({});
 
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
+    document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+    return () => { document.body.style.overflow = 'auto'; };
   }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
-
       if (e.key === 'ArrowLeft') {
         setPhotoIndex((prev) => (prev - 1 + project.images.length) % project.images.length);
       } else if (e.key === 'ArrowRight') {
@@ -38,10 +32,17 @@ const ProjectPage = () => {
         setIsOpen(false);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, project.images.length]);
+  }, [isOpen, project?.images.length]);
+
+  useEffect(() => {
+    if (!project) return;
+    project.images.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, [project]);
 
   if (!project) return <div>Proiectul nu a fost găsit.</div>;
 
@@ -95,6 +96,7 @@ const ProjectPage = () => {
         >
           {project.title}
         </motion.h1>
+
         {project.description && (
           <motion.p
             initial={{ opacity: 0 }}
@@ -106,17 +108,11 @@ const ProjectPage = () => {
           </motion.p>
         )}
 
-        {/* Folosim Masonry pentru layout-ul imaginilor */}
         <Masonry
-          breakpointCols={{
-            default: 4,
-            1100: 3,
-            700: 2,
-            500: 1,
-          }}
+          breakpointCols={{ default: 4, 1100: 3, 700: 2, 500: 1 }}
           className="flex w-full"
           columnClassName="masonry-column"
-          style={{ display: 'flex', gap: '16px', justifyContent: 'center' }} // Gap mai mic și ajustat
+          style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}
         >
           {project.images.map((src, idx) => (
             <motion.div
@@ -126,13 +122,21 @@ const ProjectPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
             >
-              <img
-                src={src}
-                alt={`Project ${idx + 1}`}
-                loading="lazy"
-                onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
-                className="w-full h-auto mb-6 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
-              />
+              <div className="w-full h-auto mb-6 rounded-xl overflow-hidden bg-gray-700 flex items-center justify-center">
+                {!loadedImages[src] && (
+                  <div className="w-full h-64 flex items-center justify-center animate-pulse bg-gray-800 rounded-xl">
+                    <span className="text-gray-400">Se încarcă...</span>
+                  </div>
+                )}
+                <img
+                  src={src}
+                  alt={`Project ${idx + 1}`}
+                  loading="lazy"
+                  onLoad={() => setLoadedImages((prev) => ({ ...prev, [src]: true }))}
+                  onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
+                  className={`w-full h-auto rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl ${loadedImages[src] ? 'block' : 'hidden'}`}
+                />
+              </div>
               <p className="text-sm text-center mt-2 text-gray-300">{project.imageTitles?.[idx]}</p>
             </motion.div>
           ))}
@@ -145,9 +149,7 @@ const ProjectPage = () => {
           shouldCloseOnOverlayClick={true}
         >
           <div
-            onClick={(e) => {
-              if (e.target === e.currentTarget) closeModal();
-            }}
+            onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
             className="relative w-full h-screen flex items-center justify-center"
           >
             <button
@@ -158,10 +160,7 @@ const ProjectPage = () => {
             </button>
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setPhotoIndex((photoIndex - 1 + project.images.length) % project.images.length);
-              }}
+              onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex - 1 + project.images.length) % project.images.length); }}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
             >
               &#8592;
@@ -172,17 +171,11 @@ const ProjectPage = () => {
               loading="lazy"
               alt={`Project ${photoIndex + 1}`}
               className={`max-h-full w-auto max-w-none mx-auto rounded-xl transform transition-transform duration-300 ${zoomed ? 'scale-150' : ''}`}
-              onClick={(e) => {
-                e.stopPropagation();
-                setZoomed(!zoomed);
-              }}
+              onClick={(e) => { e.stopPropagation(); setZoomed(!zoomed); }}
             />
 
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setPhotoIndex((photoIndex + 1) % project.images.length);
-              }}
+              onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex + 1) % project.images.length); }}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
             >
               &#8594;
@@ -204,13 +197,7 @@ const ProjectPage = () => {
         transition={{ duration: 1, ease: 'easeInOut' }}
         className="fixed bottom-8 right-8 p-4 rounded-full bg-gradient-to-r from-[#2b2b2b] to-[#3a3a3a] backdrop-blur-md text-white shadow-xl hover:bg-gradient-to-r hover:from-[#444444] hover:to-[#555555] hover:scale-110 transition-all duration-300 group"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 group-hover:rotate-180 transition-transform duration-300"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:rotate-180 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7-7-7 7" />
         </svg>
       </motion.button>
