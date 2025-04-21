@@ -19,15 +19,6 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
 
-const scrollToTop = () => {
-  const scrollInterval = setInterval(() => {
-    const currentPosition = window.scrollY;
-    if (currentPosition <= 0) {
-      clearInterval(scrollInterval);
-    }
-    window.scrollTo(0, currentPosition - 20);
-  }, 10);
-};
 
 const ProjectList = () => (
   <div className="bg-[#1F1C1B] text-white min-h-screen flex flex-col">
@@ -57,7 +48,6 @@ const ProjectList = () => (
         ))}
       </motion.div>
     </motion.section>
-    
 
     <Footer />
   </div>

@@ -60,7 +60,7 @@ const ProjectPage = () => {
 
   useEffect(() => {
     // Simulăm un timp de încărcare de 5 secunde
-    const timer = setTimeout(() => setIsLoading(false), 3000); // 5 secunde
+    const timer = setTimeout(() => setIsLoading(false), 2000); // 5 secunde
     return () => clearTimeout(timer); // Curăță timeout-ul
   }, []);
 
