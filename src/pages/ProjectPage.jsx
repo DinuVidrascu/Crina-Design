@@ -8,13 +8,11 @@ import Masonry from 'react-masonry-css';
 
 Modal.setAppElement('#root');
 
-const LazyImage = ({ src, alt, onClick, forceVisible = false }) => {
-  const [isVisible, setIsVisible] = useState(forceVisible);
+const LazyImage = ({ src, alt, onClick }) => {
+  const [isVisible, setIsVisible] = useState(false);
   const imgRef = React.useRef();
 
   useEffect(() => {
-    if (forceVisible) return;
-
     const ref = imgRef.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -33,7 +31,7 @@ const LazyImage = ({ src, alt, onClick, forceVisible = false }) => {
     return () => {
       if (ref) observer.unobserve(ref);
     };
-  }, [forceVisible]);
+  }, []);
 
   return (
     <div ref={imgRef}>
@@ -58,13 +56,6 @@ const ProjectPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
-
-  const visitedKey = `visited-${slug}`;
-  const hasVisited = localStorage.getItem(visitedKey) === 'true';
-
-  useEffect(() => {
-    localStorage.setItem(visitedKey, 'true');
-  }, [visitedKey]);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
@@ -168,7 +159,6 @@ const ProjectPage = () => {
                 src={src}
                 alt={`Project ${idx + 1}`}
                 onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
-                forceVisible={hasVisited}
               />
               <p className="text-sm text-center mt-2 text-gray-300">{project.imageTitles?.[idx]}</p>
             </motion.div>
