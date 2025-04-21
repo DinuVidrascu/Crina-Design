@@ -56,6 +56,13 @@ const ProjectPage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Starea de încărcare
+
+  useEffect(() => {
+    // Simulăm un timp de încărcare de 5 secunde
+    const timer = setTimeout(() => setIsLoading(false), 3000); // 5 secunde
+    return () => clearTimeout(timer); // Curăță timeout-ul
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? 'hidden' : 'auto';
@@ -120,105 +127,111 @@ const ProjectPage = () => {
         </Link>
       </div>
 
-      <div className="p-8 max-w-6xl mx-auto">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="text-4xl font-bold mb-6 text-center text-gray-100"
-        >
-          {project.title}
-        </motion.h1>
-
-        {project.description && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-lg text-gray-400 mb-8"
+      {isLoading ? ( // Afișează loading dacă încărcarea nu s-a terminat
+        <div className="flex items-center justify-center h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-blue-500"></div>
+        </div>
+      ) : (
+        <div className="p-8 max-w-6xl mx-auto">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="text-4xl font-bold mb-6 text-center text-gray-100"
           >
-            {project.description}
-          </motion.p>
-        )}
+            {project.title}
+          </motion.h1>
 
-        <Masonry
-          breakpointCols={{ default: 4, 1100: 3, 700: 2, 500: 1 }}
-          className="flex w-full"
-          columnClassName="masonry-column"
-          style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}
-        >
-          {project.images.map((src, idx) => (
-            <motion.div
-              key={idx}
-              className="relative"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
+          {project.description && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="text-lg text-gray-400 mb-8"
             >
-              <LazyImage
-                src={src}
-                alt={`Project ${idx + 1}`}
-                onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
+              {project.description}
+            </motion.p>
+          )}
+
+          <Masonry
+            breakpointCols={{ default: 4, 1100: 3, 700: 2, 500: 1 }}
+            className="flex w-full"
+            columnClassName="masonry-column"
+            style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}
+          >
+            {project.images.map((src, idx) => (
+              <motion.div
+                key={idx}
+                className="relative"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + idx * 0.1, duration: 0.5 }}
+              >
+                <LazyImage
+                  src={src}
+                  alt={`Project ${idx + 1}`}
+                  onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
+                />
+                <p className="text-sm text-center mt-2 text-gray-300">{project.imageTitles?.[idx]}</p>
+              </motion.div>
+            ))}
+          </Masonry>
+
+          <Modal
+            isOpen={isOpen}
+            onRequestClose={closeModal}
+            style={customStyles}
+            shouldCloseOnOverlayClick={true}
+          >
+            <div
+              onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+              className="relative w-full h-screen flex items-center justify-center"
+            >
+              <button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-6 right-8 text-4xl text-white opacity-80 hover:opacity-100 focus:outline-none z-30"
+              >
+                &times;
+              </button>
+
+              <button
+                onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex - 1 + project.images.length) % project.images.length); }}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
+              >
+                &#8592;
+              </button>
+
+              <img
+                src={project.images[photoIndex]}
+                loading="lazy"
+                alt={`Project ${photoIndex + 1}`}
+                className={`max-h-full w-auto max-w-none mx-auto rounded-xl transform transition-transform duration-300 ${zoomed ? 'scale-150' : ''}`}
+                onClick={(e) => { e.stopPropagation(); setZoomed(!zoomed); }}
               />
-              <p className="text-sm text-center mt-2 text-gray-300">{project.imageTitles?.[idx]}</p>
-            </motion.div>
-          ))}
-        </Masonry>
 
-        <Modal
-          isOpen={isOpen}
-          onRequestClose={closeModal}
-          style={customStyles}
-          shouldCloseOnOverlayClick={true}
-        >
-          <div
-            onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
-            className="relative w-full h-screen flex items-center justify-center"
-          >
-            <button
-              onClick={() => setIsOpen(false)}
-              className="absolute top-6 right-8 text-4xl text-white opacity-80 hover:opacity-100 focus:outline-none z-30"
-            >
-              &times;
-            </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex + 1) % project.images.length); }}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
+              >
+                &#8594;
+              </button>
 
-            <button
-              onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex - 1 + project.images.length) % project.images.length); }}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
-            >
-              &#8592;
-            </button>
-
-            <img
-              src={project.images[photoIndex]}
-              loading="lazy"
-              alt={`Project ${photoIndex + 1}`}
-              className={`max-h-full w-auto max-w-none mx-auto rounded-xl transform transition-transform duration-300 ${zoomed ? 'scale-150' : ''}`}
-              onClick={(e) => { e.stopPropagation(); setZoomed(!zoomed); }}
-            />
-
-            <button
-              onClick={(e) => { e.stopPropagation(); setPhotoIndex((photoIndex + 1) % project.images.length); }}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
-            >
-              &#8594;
-            </button>
-
-            {project.imageTitles?.[photoIndex] && (
-              <p className="text-center text-white mt-4 text-sm absolute bottom-8 w-full">
-                {project.imageTitles[photoIndex]}
-              </p>
-            )}
-          </div>
-        </Modal>
-      </div>
+              {project.imageTitles?.[photoIndex] && (
+                <p className="text-center text-white mt-4 text-sm absolute bottom-8 w-full">
+                  {project.imageTitles[photoIndex]}
+                </p>
+              )}
+            </div>
+          </Modal>
+        </div>
+      )}
 
       <motion.button
         onClick={scrollToTop}
         initial={{ opacity: 1 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: 'easeInOut' }}
-        className="fixed bottom-8 right-8 p-4 rounded-full bg-gradient-to-r from-[#2b2b2b] to-[#3a3a3a] backdrop-blur-md text-white shadow-xl hover:bg-gradient-to-r hover:from-[#444444] hover:to-[#555555] hover:scale-110 transition-all duration-300 group"
+        className="fixed bottom-8 right-8 p-4 rounded-full bg-gradient-to-r from-[#2b2b2b] to-[#3a3a3a] backdrop-blur-md text-white shadow-xl hover:bg-gradient-to-r hover:from-[#444444444] hover:to-[#555555] hover:scale-110 transition-all duration-300 group"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:rotate-180 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7-7-7 7" />
