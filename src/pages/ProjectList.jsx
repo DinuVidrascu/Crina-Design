@@ -1,33 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import projects from '../data/projects';
 import ProjectCard from '../components/ProjectCard';
-
-// Componenta LazyImage pentru gestionarea încărcării imaginilor
-const LazyImage = ({ src, alt, onClick }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  return (
-    <div className="relative w-full h-full">
-      <img
-        src={src}
-        alt={alt}
-        className={`w-full h-auto mb-6 rounded-xl transition-all duration-300 transform ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        onLoad={() => setIsLoaded(true)}
-        style={{
-          filter: isLoaded ? 'none' : 'blur(10px)',
-        }}
-        onClick={onClick}
-        loading="lazy"
-      />
-      {!isLoaded && (
-        <div className="absolute inset-0 bg-gray-800 animate-pulse rounded-xl" />
-      )}
-    </div>
-  );
-};
 
 const containerVariants = {
   hidden: {},
@@ -42,6 +18,7 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
 };
+
 
 const ProjectList = () => (
   <div className="bg-[#1F1C1B] text-white min-h-screen flex flex-col">
