@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import projects from '../data/projects';
 import Footer from '../components/Footer';
 import Modal from 'react-modal';
+import Masonry from 'react-masonry-css'; // Importăm librăria
 
 Modal.setAppElement('#root');
 
@@ -14,16 +15,14 @@ const ProjectPage = () => {
   const [photoIndex, setPhotoIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
 
-  // Activează/dezactivează scroll-ul
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'; // Dezactivează scroll-ul
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'auto'; // Activează scroll-ul
+      document.body.style.overflow = 'auto';
     }
-
     return () => {
-      document.body.style.overflow = 'auto'; // În cazul în care se închide componenta
+      document.body.style.overflow = 'auto';
     };
   }, [isOpen]);
 
@@ -53,14 +52,14 @@ const ProjectPage = () => {
         clearInterval(scrollInterval);
       }
       window.scrollTo(0, currentPosition - 20);
-    }, 16);
+    }, 10);
   };
 
   const customStyles = {
     overlay: {
-      backgroundColor: 'rgba(0, 0, 0, 0.9)', // Fundal întunecat
+      backgroundColor: 'rgba(0, 0, 0, 0.9)',
       zIndex: 1000,
-      backdropFilter: 'blur(10px)', // Adaugă blur
+      backdropFilter: 'blur(10px)',
     },
     content: {
       inset: '0',
@@ -71,7 +70,6 @@ const ProjectPage = () => {
     },
   };
 
-  // Închiderea modalului la clic pe fundal
   const closeModal = () => setIsOpen(false);
 
   return (
@@ -108,7 +106,18 @@ const ProjectPage = () => {
           </motion.p>
         )}
 
-        <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-6">
+        {/* Folosim Masonry pentru layout-ul imaginilor */}
+        <Masonry
+          breakpointCols={{
+            default: 4,
+            1100: 3,
+            700: 2,
+            500: 1,
+          }}
+          className="flex w-full"
+          columnClassName="masonry-column"
+          style={{ display: 'flex', gap: '16px', justifyContent: 'center' }} // Gap mai mic și ajustat
+        >
           {project.images.map((src, idx) => (
             <motion.div
               key={idx}
@@ -122,12 +131,12 @@ const ProjectPage = () => {
                 alt={`Project ${idx + 1}`}
                 loading="lazy"
                 onClick={() => { setPhotoIndex(idx); setIsOpen(true); }}
-                className="w-full mb-6 rounded-3xl cursor-pointer break-inside-avoid object-cover transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                className="w-full h-auto mb-6 rounded-xl cursor-pointer transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
               />
               <p className="text-sm text-center mt-2 text-gray-300">{project.imageTitles?.[idx]}</p>
             </motion.div>
           ))}
-        </div>
+        </Masonry>
 
         <Modal
           isOpen={isOpen}
@@ -135,10 +144,9 @@ const ProjectPage = () => {
           style={customStyles}
           shouldCloseOnOverlayClick={true}
         >
-          {/* Fundalul modalului */}
           <div
             onClick={(e) => {
-              if (e.target === e.currentTarget) closeModal(); // Închide doar dacă dai clic pe fundal
+              if (e.target === e.currentTarget) closeModal();
             }}
             className="relative w-full h-screen flex items-center justify-center"
           >
@@ -161,10 +169,11 @@ const ProjectPage = () => {
 
             <img
               src={project.images[photoIndex]}
+              loading="lazy"
               alt={`Project ${photoIndex + 1}`}
               className={`max-h-full w-auto max-w-none mx-auto rounded-xl transform transition-transform duration-300 ${zoomed ? 'scale-150' : ''}`}
               onClick={(e) => {
-                e.stopPropagation();  // Previi ca clicul pe imagine să închidă modalul
+                e.stopPropagation();
                 setZoomed(!zoomed);
               }}
             />
@@ -186,7 +195,6 @@ const ProjectPage = () => {
             )}
           </div>
         </Modal>
-
       </div>
 
       <motion.button

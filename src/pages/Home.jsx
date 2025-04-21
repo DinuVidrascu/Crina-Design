@@ -2,7 +2,7 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { motion } from 'framer-motion';
-import IMG from '../img/ccr.png';
+import HeroImg from '../img/hero-img.png';
 import { Link } from 'react-router-dom';
 
 const containerVariants = {
@@ -64,7 +64,7 @@ const Home = () => {
             transition={{ duration: 0.6}}
           >
             <motion.img
-              src={IMG}
+              src={HeroImg}
               alt="Crina Vidrascu"
               className="w-full max-w-lg"
               whileHover={{ scale: 1.05 }}

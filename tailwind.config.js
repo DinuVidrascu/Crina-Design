@@ -4,7 +4,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        outfit: ['"Josefin Sans", sans-serif'],
+        montserrat: ['"Montserrat"', 'sans-serif'],
       },
     },
   },
