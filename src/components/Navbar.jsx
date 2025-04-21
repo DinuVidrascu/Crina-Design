@@ -16,7 +16,7 @@ const Navbar = () => {
       <nav className="bg-[#1f1f1f] shadow-lg sticky top-0 z-50 transition-all duration-500">
         <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-semibold text-white hover:text-gray-700 transition-colors duration-300">
+          <Link to="/" className="text-2xl font-semibold text-white hover:text-gray-500 transition-colors duration-300">
             Interior Design
           </Link>
 
@@ -32,7 +32,7 @@ const Navbar = () => {
               >
                 {name}
                 <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-gray-700 transition-all duration-300 ${
+                  className={`absolute bottom-0 left-0 h-0.5 bg-gray-100 transition-all duration-300 ${
                     pathname === to ? 'w-full' : 'w-0 hover:w-full'
                   }`}
                 />

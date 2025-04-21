@@ -74,7 +74,7 @@ const Contact = () => {
                 value={form.name}
                 onChange={handleChange}
                 required
-                className="w-full bg-transparent border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full bg-transparent border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 transition"
                 placeholder="Your name"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -92,7 +92,7 @@ const Contact = () => {
                 value={form.email}
                 onChange={handleChange}
                 required
-                className="w-full bg-transparent border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="w-full bg-transparent border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 transition"
                 placeholder="exemple@email.com"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -110,7 +110,7 @@ const Contact = () => {
                 value={form.message}
                 onChange={handleChange}
                 required
-                className="w-full bg-transparent border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+                className="w-full bg-transparent border border-gray-600 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-200 transition resize-none"
                 placeholder="Write your message here..."
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

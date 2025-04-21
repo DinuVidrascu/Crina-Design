@@ -137,7 +137,9 @@ const ProjectPage = () => {
         >
           {/* Fundalul modalului */}
           <div
-            onClick={closeModal}  // Închide la clic pe fundal
+            onClick={(e) => {
+              if (e.target === e.currentTarget) closeModal(); // Închide doar dacă dai clic pe fundal
+            }}
             className="relative w-full h-screen flex items-center justify-center"
           >
             <button
@@ -148,7 +150,10 @@ const ProjectPage = () => {
             </button>
 
             <button
-              onClick={() => setPhotoIndex((photoIndex - 1 + project.images.length) % project.images.length)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPhotoIndex((photoIndex - 1 + project.images.length) % project.images.length);
+              }}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
             >
               &#8592;
@@ -165,7 +170,10 @@ const ProjectPage = () => {
             />
 
             <button
-              onClick={() => setPhotoIndex((photoIndex + 1) % project.images.length)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setPhotoIndex((photoIndex + 1) % project.images.length);
+              }}
               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl z-30 bg-black/50 hover:bg-black/70 p-3 rounded-full transition"
             >
               &#8594;
@@ -178,6 +186,7 @@ const ProjectPage = () => {
             )}
           </div>
         </Modal>
+
       </div>
 
       <motion.button

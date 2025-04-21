@@ -3,8 +3,8 @@ module.exports = {
   content: ["./src/**/*.{js,jsx}"],
   theme: {
     extend: {
-      ontFamily: {
-        outfit: ['"Outfit"', 'sans-serif'],
+      fontFamily: {
+        outfit: ['"Josefin Sans", sans-serif'],
       },
     },
   },
