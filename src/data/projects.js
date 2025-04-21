@@ -105,9 +105,7 @@ const projects = [
       cover: Project3,
       images: [
          "/project/monochrome-interior-2024/1.jpg",
-         "/project/monochrome-interior-2024/2.jpg",
-         "/project/monochrome-interior-2024/3.jpg",
-         "/project/monochrome-interior-2024/4.jpg",
+         "/project/monochrome-interior-2024/2.JPG",
          "/project/monochrome-interior-2024/5.jpg",
          "/project/monochrome-interior-2024/6.jpg",
          "/project/monochrome-interior-2024/7.jpg",
